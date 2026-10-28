@@ -125,10 +125,34 @@ Faça um fork do repositório para utilizar a estrutura abaixo: https://github.c
 
 Crie e ative um ambiente virtual antes de instalar dependências:
 
+```powershell
+# Windows (PowerShell)
+python -m venv venv
+venv\Scripts\Activate.ps1
 ```
+
+```bash
+# Linux / macOS
 python3 -m venv venv
 source venv/bin/activate
 ```
+
+Instale as dependências:
+
+```
+pip install -r requirements.txt
+```
+
+## Configuração
+
+Copie `.env.example` para `.env` e preencha:
+
+- `AI_PROVIDER`: `openai` ou `gemini` — escolhe qual bloco de variáveis abaixo é usado.
+- As variáveis do provedor escolhido (`OPENAI_API_KEY` + modelos, ou `GOOGLE_API_KEY` + modelos).
+- As variáveis de conexão com o Postgres (já vêm com valores padrão compatíveis com o
+  `docker-compose.yml`).
+
+A seleção de provedor e modelos é centralizada em `src/config.py`.
 
 ## Ordem de execução
 
@@ -149,6 +173,8 @@ python src/ingest.py
 ```
 python src/chat.py
 ```
+
+Digite `sair`, `exit` ou `quit` para encerrar o chat.
 
 ## Entregável
 

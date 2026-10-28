@@ -1,29 +1,28 @@
-PROMPT_TEMPLATE = """
-CONTEXTO:
-{contexto}
+"""Busca semântica: vetoriza a pergunta e retorna os k resultados mais relevantes do pgVector."""
 
-REGRAS:
-- Responda somente com base no CONTEXTO.
-- Se a informação não estiver explicitamente no CONTEXTO, responda:
-  "Não tenho informações necessárias para responder sua pergunta."
-- Nunca invente ou use conhecimento externo.
-- Nunca produza opiniões ou interpretações além do que está escrito.
+from langchain_postgres import PGVector
 
-EXEMPLOS DE PERGUNTAS FORA DO CONTEXTO:
-Pergunta: "Qual é a capital da França?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+import config
 
-Pergunta: "Quantos clientes temos em 2024?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
 
-Pergunta: "Você acha isso bom ou ruim?"
-Resposta: "Não tenho informações necessárias para responder sua pergunta."
+def get_vector_store() -> PGVector:
+    embeddings = config.get_embeddings()
+    return PGVector(
+        embeddings=embeddings,
+        collection_name=config.PG_COLLECTION_NAME,
+        connection=config.PG_CONNECTION_STRING,
+        use_jsonb=True,
+    )
 
-PERGUNTA DO USUÁRIO:
-{pergunta}
 
-RESPONDA A "PERGUNTA DO USUÁRIO"
-"""
+def search(query: str, k: int = config.SEARCH_K):
+    store = get_vector_store()
+    return store.similarity_search_with_score(query, k=k)
 
-def search_prompt(question=None):
-    pass
+
+if __name__ == "__main__":
+    pergunta = input("Pergunta para teste de busca: ")
+    resultados = search(pergunta)
+    for doc, score in resultados:
+        print(f"\n--- score={score:.4f} ---")
+        print(doc.page_content)
